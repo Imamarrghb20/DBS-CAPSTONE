@@ -1,0 +1,7 @@
+tensorflow>=2.15.0
+fastapi
+uvicorn
+joblib
+pandas
+numpy
+scikit-learn
