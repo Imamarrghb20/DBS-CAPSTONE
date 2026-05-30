@@ -111,10 +111,10 @@ Untuk menjalankan aplikasi ini di komputer lokal Anda, pastikan Anda telah mengi
    *Frontend akan berjalan di port 5173.* Buka `http://localhost:5173` di browser Anda.
 
 ---
-*Dibangun dengan ❤️ oleh 
+Dibangun dengan ❤️ oleh 
 1. Cut Nadya Putri K.
 2. Ulya Fatimah N.
 3. Rahmi Fah Riza
 4. Imam Ar-Roghib A.
 5. Muhammad Ghanim M.
-6. Rifki Fadillah*
+6. Rifki Fadillah
