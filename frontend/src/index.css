@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-slate-800 font-sans antialiased bg-gradient-to-b from-[#FDF2F8] to-[#F3E8FF] min-h-screen bg-fixed;
+  }
+}
+
+@layer utilities {
+  .animate-intro-bounce {
+    animation: introBounce 1.5s ease-in-out 2 forwards;
+  }
+}
+
+@keyframes introBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
