@@ -116,7 +116,7 @@ export default function PredictionForm() {
       }
     } catch (err) {
       console.error(err);
-      navigate('/result', { state: { result: { ml_result: { data: { stress_level_prediction: 'CUKUP STRES', confidence: 85, stress_level_code: 1 }, recommendations: { suggested_activity: 'Jalan Santai 15 Menit', nutrition_focus: 'Perbanyak sayur dan kurangi gula' } } } } }); // Fallback for demo
+      alert(err.response?.data?.message || 'Terjadi kesalahan saat memproses prediksi. Pastikan server aktif.');
     } finally {
       setLoading(false);
     }
