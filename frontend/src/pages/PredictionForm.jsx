@@ -107,7 +107,8 @@ export default function PredictionForm() {
       });
 
       const payload = { ...formData, pss_total_score: real_pss_score, user_id: user.id || null };
-      const response = await axios.post('http://localhost:5000/api/predict', payload);
+      const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:5000';
+      const response = await axios.post(`${API_URL}/api/predict`, payload);
       if (response.data.status === 'success') {
         navigate('/result', { state: { result: response.data } });
       } else {

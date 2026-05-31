@@ -25,7 +25,8 @@ export default function Register() {
     
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:5000';
+      const res = await axios.post(`${API_URL}/api/auth/register`, formData);
       if (res.data.status === 'success') {
         setSuccessMsg('Registrasi berhasil! Mengalihkan ke halaman masuk...');
         setTimeout(() => navigate('/login'), 2500);

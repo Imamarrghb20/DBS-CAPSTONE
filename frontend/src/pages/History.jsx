@@ -19,7 +19,8 @@ export default function History() {
           return;
         }
 
-        const res = await axios.get(`http://localhost:5000/api/predict/history/${user.id}`);
+        const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:5000';
+        const res = await axios.get(`${API_URL}/api/predict/history/${user.id}`);
         if (res.data.status === 'success') {
           setHistory(res.data.data);
         } else {
