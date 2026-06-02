@@ -1,0 +1,377 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+
+# Page config
+st.set_page_config(page_title="ALIVE Dashboard", layout="wide")
+
+# Title
+st.title("🧠 Stress & Wellness Dashboard")
+st.subheader("Upload your CSV file to analyze stress patterns")
+
+# Upload file
+uploaded_file = st.file_uploader("Choose CSV file", type="csv")
+
+if uploaded_file is not None:
+    # Load data
+    df = pd.read_csv(uploaded_file, sep=';')
+    
+    st.success("✅ File loaded successfully!")
+    
+    # Sidebar filters
+    st.sidebar.title("🎯 Filters")
+    
+    # Filter 1: Stress Level
+    if 'stress_level' in df.columns:
+        stress_levels = df['stress_level'].unique()
+        selected_stress = st.sidebar.multiselect(
+            "Stress Level",
+            stress_levels,
+            default=stress_levels
+        )
+        df = df[df['stress_level'].isin(selected_stress)]
+    
+    # Filter 2: Gender
+    if 'gender' in df.columns:
+        genders = df['gender'].unique()
+        selected_gender = st.sidebar.multiselect(
+            "Gender",
+            genders,
+            default=genders
+        )
+        df = df[df['gender'].isin(selected_gender)]
+    
+    # Filter 3: Daily Pressure
+    if 'daily_pressure' in df.columns:
+        pressures = df['daily_pressure'].unique()
+        selected_pressure = st.sidebar.multiselect(
+            "Daily Pressure",
+            pressures,
+            default=pressures
+        )
+        df = df[df['daily_pressure'].isin(selected_pressure)]
+    
+    st.sidebar.markdown(f"**Total Records: {len(df)}**")
+    
+    # ======================== TAB 1: OVERVIEW ========================
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "💤 Sleep Analysis", "🏋️ Lifestyle", "📈 Correlations"])
+    
+    with tab1:
+        st.header("Dashboard Overview")
+        
+        # Key metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Respondents", len(df))
+        
+        if 'pss_total_score' in df.columns:
+            with col2:
+                avg_stress = df['pss_total_score'].mean()
+                st.metric("Avg Stress Score", f"{avg_stress:.1f}")
+        
+        if 'quality_of_sleep' in df.columns:
+            with col3:
+                avg_sleep = df['quality_of_sleep'].mean()
+                st.metric("Avg Sleep Quality", f"{avg_sleep:.1f}/10")
+        
+        if 'physical_activity_level' in df.columns:
+            with col4:
+                avg_activity = df['physical_activity_level'].mean()
+                st.metric("Avg Activity", f"{avg_activity:.0f}%")
+        
+        st.markdown("---")
+        
+        # Charts
+        col1, col2 = st.columns(2)
+        
+        # Stress Distribution
+        with col1:
+            if 'stress_level' in df.columns:
+                st.subheader("Stress Level Distribution")
+                stress_counts = df['stress_level'].value_counts()
+                colors = {'Rendah': '#10b981', 'Ringan': '#f59e0b', 'Sedang': '#f97316', 'Tinggi': '#ef4444'}
+                fig = px.pie(
+                    values=stress_counts.values,
+                    names=stress_counts.index,
+                    color=stress_counts.index,
+                    color_discrete_map=colors,
+                    hole=0.4
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+        # Stress by Pressure
+        with col2:
+            if 'daily_pressure' in df.columns and 'pss_total_score' in df.columns:
+                st.subheader("Stress by Daily Pressure")
+                pressure_data = df.groupby('daily_pressure')['pss_total_score'].mean().sort_values(ascending=False)
+                fig = px.bar(
+                    x=pressure_data.index,
+                    y=pressure_data.values,
+                    labels={'x': 'Daily Pressure', 'y': 'Avg Stress'},
+                    color=pressure_data.values,
+                    color_continuous_scale='RdYlGn_r'
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+        # Row 2
+        col1, col2 = st.columns(2)
+        
+        # BMI Impact
+        with col1:
+            if 'bmi_category' in df.columns and 'pss_total_score' in df.columns:
+                st.subheader("Stress by BMI Category")
+                bmi_data = df.groupby('bmi_category')['pss_total_score'].mean().sort_values(ascending=False)
+                fig = px.bar(
+                    x=bmi_data.index,
+                    y=bmi_data.values,
+                    labels={'x': 'BMI Category', 'y': 'Avg Stress'},
+                    color=bmi_data.values,
+                    color_continuous_scale='Reds'
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+        # Gender Comparison
+        with col2:
+            if 'gender' in df.columns and 'pss_total_score' in df.columns:
+                st.subheader("Stress by Gender")
+                gender_data = df.groupby('gender')['pss_total_score'].mean()
+                fig = px.bar(
+                    x=gender_data.index,
+                    y=gender_data.values,
+                    labels={'x': 'Gender', 'y': 'Avg Stress'},
+                    color=gender_data.values,
+                    color_continuous_scale='Blues'
+                )
+                st.plotly_chart(fig, use_container_width=True)
+    
+    # ======================== TAB 2: SLEEP ANALYSIS ========================
+    with tab2:
+        st.header("Sleep Quality & Stress Analysis")
+        
+        if 'quality_of_sleep' in df.columns and 'pss_total_score' in df.columns:
+            col1, col2 = st.columns([2, 1])
+            
+            # Scatter plot
+            with col1:
+                st.subheader("Sleep Quality vs Stress Score")
+                fig = px.scatter(
+                    df,
+                    x='quality_of_sleep',
+                    y='pss_total_score',
+                    color='stress_level' if 'stress_level' in df.columns else 'pss_total_score',
+                    color_discrete_map={
+                        'Rendah': '#10b981',
+                        'Ringan': '#f59e0b',
+                        'Sedang': '#f97316',
+                        'Tinggi': '#ef4444'
+                    } if 'stress_level' in df.columns else None,
+                    color_continuous_scale='RdYlGn_r' if 'stress_level' not in df.columns else None,
+                    labels={'quality_of_sleep': 'Sleep Quality (1-10)', 'pss_total_score': 'Stress Score'},
+                    hover_data=['gender'] if 'gender' in df.columns else None,
+                )
+                
+                # Add trendline
+                z = np.polyfit(df['quality_of_sleep'].dropna(), 
+                              df.loc[df['quality_of_sleep'].notna(), 'pss_total_score'], 1)
+                p = np.poly1d(z)
+                x_line = np.linspace(df['quality_of_sleep'].min(), df['quality_of_sleep'].max(), 100)
+                fig.add_trace(go.Scatter(x=x_line, y=p(x_line), 
+                                        mode='lines', name='Trend',
+                                        line=dict(color='red', width=3, dash='dash')))
+                
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Insights
+            with col2:
+                st.subheader("📊 Sleep Insights")
+                
+                # Correlation
+                from scipy.stats import pearsonr
+                corr, p_val = pearsonr(df['quality_of_sleep'].dropna(), 
+                                       df.loc[df['quality_of_sleep'].notna(), 'pss_total_score'])
+                
+                st.metric("Correlation", f"{corr:.3f}")
+                st.caption(f"p-value: {p_val:.4f}")
+                
+                st.markdown("---")
+                
+                # At risk
+                at_risk = len(df[(df['quality_of_sleep'] < 6) & (df['pss_total_score'] > 26)])
+                st.metric("At Risk 🚨", f"{at_risk} people")
+                st.caption("Poor sleep + High stress")
+            
+            st.markdown("---")
+            
+            # Box plot by stress level
+            if 'stress_level' in df.columns:
+                st.subheader("Sleep Quality Distribution by Stress Level")
+                fig = px.box(
+                    df,
+                    x='stress_level',
+                    y='quality_of_sleep',
+                    color='stress_level',
+                    color_discrete_map={
+                        'Rendah': '#10b981',
+                        'Ringan': '#f59e0b',
+                        'Sedang': '#f97316',
+                        'Tinggi': '#ef4444'
+                    },
+                    labels={'quality_of_sleep': 'Sleep Quality', 'stress_level': 'Stress Level'},
+                )
+                st.plotly_chart(fig, use_container_width=True)
+    
+    # ======================== TAB 3: LIFESTYLE ========================
+    with tab3:
+        st.header("Lifestyle Impact on Stress")
+        
+        col1, col2 = st.columns(2)
+        
+        # Physical Activity
+        with col1:
+            if 'physical_activity_level' in df.columns and 'pss_total_score' in df.columns:
+                st.subheader("Physical Activity Impact")
+                
+                activity_bins = pd.cut(df['physical_activity_level'], bins=5)
+                activity_stress = df.groupby(activity_bins)['pss_total_score'].mean()
+                
+                fig = go.Figure(data=[
+                    go.Scatter(
+                        x=activity_stress.index.astype(str),
+                        y=activity_stress.values,
+                        mode='lines+markers',
+                        fill='tozeroy',
+                        line=dict(color='#10b981', width=3),
+                        marker=dict(size=10)
+                    )
+                ])
+                fig.update_layout(xaxis_title='Activity Level Range', yaxis_title='Avg Stress')
+                st.plotly_chart(fig, use_container_width=True)
+        
+        # Screen Time
+        with col2:
+            if 'screen_time_hours' in df.columns and 'pss_total_score' in df.columns:
+                st.subheader("Screen Time Impact")
+                
+                fig = px.scatter(
+                    df,
+                    x='screen_time_hours',
+                    y='pss_total_score',
+                    color='pss_total_score',
+                    color_continuous_scale='Reds',
+                    labels={'screen_time_hours': 'Screen Time (hours)', 'pss_total_score': 'Stress Score'},
+                )
+                
+                # Trendline
+                z = np.polyfit(df['screen_time_hours'].dropna(),
+                              df.loc[df['screen_time_hours'].notna(), 'pss_total_score'], 1)
+                p = np.poly1d(z)
+                x_line = np.linspace(df['screen_time_hours'].min(), df['screen_time_hours'].max(), 100)
+                fig.add_trace(go.Scatter(x=x_line, y=p(x_line),
+                                        mode='lines', name='Trend',
+                                        line=dict(color='darkred', width=3, dash='dash')))
+                
+                st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # Lifestyle metrics
+        st.subheader("📈 Lifestyle Metrics")
+        metric_cols = st.columns(4)
+        
+        if 'physical_activity_level' in df.columns:
+            with metric_cols[0]:
+                st.metric("Avg Activity", f"{df['physical_activity_level'].mean():.0f}%")
+        
+        if 'daily_steps' in df.columns:
+            with metric_cols[1]:
+                st.metric("Avg Daily Steps", f"{df['daily_steps'].mean():.0f}")
+        
+        if 'screen_time_hours' in df.columns:
+            with metric_cols[2]:
+                st.metric("Avg Screen Time", f"{df['screen_time_hours'].mean():.1f}h")
+        
+        if 'study_hours' in df.columns:
+            with metric_cols[3]:
+                st.metric("Avg Study Time", f"{df['study_hours'].mean():.1f}h")
+    
+    # ======================== TAB 4: CORRELATIONS ========================
+    with tab4:
+        st.header("Correlation Analysis")
+        
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        if len(numeric_cols) > 1:
+            col1, col2 = st.columns([2, 1])
+            
+            with col1:
+                st.subheader("Correlation Heatmap")
+                corr_matrix = df[numeric_cols].corr()
+                
+                fig = go.Figure(data=go.Heatmap(
+                    z=corr_matrix.values,
+                    x=corr_matrix.columns,
+                    y=corr_matrix.columns,
+                    colorscale='RdBu',
+                    zmid=0,
+                    text=corr_matrix.values,
+                    texttemplate='%{text:.2f}',
+                    textfont={"size": 9}
+                ))
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with col2:
+                st.subheader("Top Correlations with Stress")
+                
+                if 'pss_total_score' in numeric_cols:
+                    stress_corr = corr_matrix['pss_total_score'].sort_values(ascending=False)
+                    
+                    st.markdown("**Increases Stress:**")
+                    for col, val in stress_corr[stress_corr > 0.1][1:6].items():
+                        st.write(f"• **{col}**: {val:.3f}")
+                    
+                    st.markdown("**Decreases Stress:**")
+                    for col, val in stress_corr[stress_corr < -0.1].head(5).items():
+                        st.write(f"• **{col}**: {val:.3f}")
+    
+    # ======================== FOOTER ========================
+    st.markdown("---")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        csv = df.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv,
+            file_name="stress_analysis.csv",
+            mime="text/csv"
+        )
+    
+    with col2:
+        json_data = df.to_json(orient='records')
+        st.download_button(
+            label="🔗 Download JSON",
+            data=json_data,
+            file_name="stress_analysis.json",
+            mime="application/json"
+        )
+    
+    with col3:
+        st.dataframe(df.describe(), use_container_width=True)
+
+else:
+    st.info("👈 Upload a CSV file to start analyzing!")
+    st.markdown("""
+    ### Expected columns:
+    - `pss_total_score` - Stress score (0-56)
+    - `stress_level` - Rendah/Ringan/Sedang/Tinggi
+    - `quality_of_sleep` - Sleep quality (1-10)
+    - `physical_activity_level` - Activity % (0-100)
+    - `screen_time_hours` - Daily screen time
+    - `daily_pressure` - Low/Medium/High
+    - `bmi_category` - BMI category
+    - `gender` - Male/Female
+    """)
