@@ -1,0 +1,27 @@
+Column,Description
+gender,Gender pengguna
+q1_focus_difficulty,Kesulitan berkonsentrasi
+q2_overthinking,Overthinking
+q3_overwhelmed,Merasa kewalahan
+q4_anxious,Merasa cemas
+q5_restless,Mudah gelisah
+q6_depressed,Merasa tertekan
+q7_sleep_problem,Sulit tidur
+q8_fatigue,Mudah lelah
+q9_headache_tension,Sakit kepala atau tegang
+q10_responsibility_difficulty,Kesulitan menyelesaikan tanggung jawab
+q11_irritable,Mudah marah
+q12_social_withdrawal,Menghindari sosial
+q13_control_stress,Mengendalikan stres
+q14_calm_self,Menenangkan diri
+q15_handle_problem,Menghadapi masalah
+pss_total_score,Total skor PSS
+stress_level,Target tingkat stres
+quality_of_sleep,Kualitas tidur
+physical_activity_level,Aktivitas fisik
+heart_rate,Heart rate
+daily_steps,Jumlah langkah harian
+screen_time_hours,Durasi screen time
+study_hours,Intensitas aktivitas
+daily_pressure,Tekanan aktivitas harian
+bmi_category,Kategori BMI
