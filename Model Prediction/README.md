@@ -41,3 +41,5 @@ numpy
 pandas
 joblib
 scikit-learn
+
+DRIVE FILE MODEL: https://drive.google.com/drive/folders/1uWerYfG5f09P2pgyDB6g74gXKOrXIiTU?usp=sharing
