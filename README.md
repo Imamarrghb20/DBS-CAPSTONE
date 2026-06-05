@@ -31,6 +31,7 @@ Proyek ini menggunakan arsitektur **Microservices** sederhana, yang dibagi menja
 - **Bahasa:** Python
 - **Model Training:** Scikit-Learn (dengan *Label Encoder* dan *Standard Scaler* `.joblib`)
 - **API Framework:** Flask / FastAPI (sebagai endpoint independen)
+- DRIVE FILE MODEL: https://drive.google.com/drive/folders/1uWerYfG5f09P2pgyDB6g74gXKOrXIiTU?usp=sharing
 
 ## 📁 Struktur Direktori
 
